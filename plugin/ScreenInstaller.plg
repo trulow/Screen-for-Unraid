@@ -63,7 +63,7 @@ echo ""
   </FILE>
 
   <FILE Name="/boot/config/plugins/&name;/screen-4.9.0-x86_64-1.txz" Run="upgradepkg --install-new --reinstall">
-    <URL>https://slackware.uk/slackware/slackware64-15.0/slackware64/ap/screen-4.9.0-x86_64-1.txz</URL>
+    <URL>https://github.com/trulow/Unraid_screen/releases/download/4.9.0/screen-4.9.0-x86_64-1.txz</URL>
     <MD5>&md5;</MD5>
   </FILE>
 
