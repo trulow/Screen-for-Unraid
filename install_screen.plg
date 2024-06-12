@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <name>Screen</name>
+    <author>trulow</author>
+    <version>1.0.0</version>
+    <description>Installs screen v4.9.0-x86_64-1</description>
+    <icon>https://i.imgur.com/bYqKniu.png</icon>
+    <category>System</category>
+    <min-unraid-version>6.9.0</min-unraid-version>
+
+    <config>
+        <file>
+            <source>https://slackware.uk/slackware/slackware64-15.0/slackware64/ap/screen-4.9.0-x86_64-1.txz</source>
+            <target>/boot/config/plugins/ScreenInstall/packages/screen-4.9.0-x86_64-1.txz</target>
+        </file>
+    </config>
+
+    <install>
+        <script>
+            <source>install.sh</source>
+        </script>
+    </install>
+
+    <remove>
+        <script>
+            <source>remove.sh</source>
+        </script>
+    </remove>
+
+    <update>
+        <script>
+            <source>update.sh</source>
+        </script>
+    </update>
+</plugin>
