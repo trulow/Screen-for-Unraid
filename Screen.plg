@@ -17,19 +17,19 @@
 
     <install>
         <script>
-            <source>install.sh</source>
+            <source>https://raw.githubusercontent.com/trulow/Unraid_screen/main/install.sh</source>
         </script>
     </install>
 
     <remove>
         <script>
-            <source>remove.sh</source>
+            <source>https://raw.githubusercontent.com/trulow/Unraid_screen/main/remove.sh</source>
         </script>
     </remove>
 
     <update>
         <script>
-            <source>update.sh</source>
+            <source>https://raw.githubusercontent.com/trulow/Unraid_screen/main/update.sh</source>
         </script>
     </update>
 </plugin>
