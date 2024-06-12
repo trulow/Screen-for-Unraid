@@ -4,7 +4,7 @@
 <!ENTITY name      "ScreenInstaller">
 <!ENTITY author    "trulow">
 <!ENTITY version   "2024.06.11">
-<!ENTITY md5       "a9b21b9292d6b5d0733e2c1d3d4b9890">
+<!ENTITY md5       "2e96eac13086e39eccb77b9f651e4cca">
 <!ENTITY launch    "Settings/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&author;/unRAID-&name;/main/plugin/&name;.plg">
 <!ENTITY plgPATH   "/boot/config/plugins/&name;">
