@@ -11,7 +11,7 @@
     <config>
         <file>
             <source>https://slackware.uk/slackware/slackware64-15.0/slackware64/ap/screen-4.9.0-x86_64-1.txz</source>
-            <target>/boot/config/plugins/ScreenInstall/packages/screen-4.9.0-x86_64-1.txz</target>
+            <target>/boot/config/plugins/screen/packages/screen-4.9.0-x86_64-1.txz</target>
         </file>
     </config>
 
