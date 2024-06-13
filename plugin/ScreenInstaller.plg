@@ -12,7 +12,7 @@
 <!ENTITY plgPATH   "/boot/config/plugins/&name;">
 <!ENTITY plgNAME   "&name;-&version;-&arch;">
 <!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
-<!ENTITY url       "https://github.com/&author;/Unraid_screen/releases/download/&screenVer;/screen-&screenVer;-&arch;.txz">
+<!ENTITY url       "https://github.com/&author;/Screen-for-Unraid/releases/download/&screenVer;/screen-&screenVer;-&arch;.txz">
 <!ENTITY iconURL   "https://i.imgur.com/bYqKniu.png">
 ]>
 
