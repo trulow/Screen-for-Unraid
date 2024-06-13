@@ -13,7 +13,7 @@
 <!ENTITY plgNAME   "&name;-&version;-&arch;">
 <!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
 <!ENTITY url       "https://github.com/&author;/Screen-for-Unraid/releases/download/&screenVer;/screen-&screenVer;-&arch;.txz">
-<!ENTITY iconURL   "https://i.imgur.com/bYqKniu.png">
+<!ENTITY iconURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
