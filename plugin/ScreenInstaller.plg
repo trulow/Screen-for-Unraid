@@ -1,19 +1,19 @@
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
-<!ENTITY name      "ScreenForUnraid">
-<!ENTITY author    "trulow">
-<!ENTITY version   "2024.06.11">
+<!ENTITY name "ScreenForUnraid">
+<!ENTITY author "trulow">
+<!ENTITY version "2024.06.11">
 <!ENTITY screenVer "4.9.0">
-<!ENTITY arch      "x86_64-1">
-<!ENTITY md5       "2e96eac13086e39eccb77b9f651e4cca">
-<!ENTITY launch    "Settings/&name;">
+<!ENTITY arch "x86_64-1">
+<!ENTITY md5 "2e96eac13086e39eccb77b9f651e4cca">
+<!ENTITY launch "Settings/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&author;/unRAID-&name;/main/plugin/&name;.plg">
-<!ENTITY plgPATH   "/boot/config/plugins/&name;">
-<!ENTITY plgNAME   "&name;-&version;-&arch;">
-<!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
-<!ENTITY url       "https://github.com/&author;/Screen-for-Unraid/releases/download/&screenVer;/screen-&screenVer;-&arch;.txz">
-<!ENTITY iconURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
+<!ENTITY plgPATH "/boot/config/plugins/&name;">
+<!ENTITY plgNAME "&name;-&version;-&arch;">
+<!ENTITY emhttp "/usr/local/emhttp/plugins/&name;">
+<!ENTITY url "https://github.com/&author;/Screen-for-Unraid/releases/download/&screenVer;/screen-&screenVer;-&arch;.txz">
+<!ENTITY iconURL "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
 <!ENTITY latestVersionURL "https://raw.githubusercontent.com/&author;/Screen-for-Unraid/main/latest_version.txt">
 ]>
 
@@ -30,12 +30,11 @@
   <!-- The 'pre-install' script. -->
   <FILE Run="/usr/bin/php">
     <INLINE>
-      <![CDATA[
-<?
+<![CDATA[
+<?php
   $version = parse_ini_file("/etc/unraid-version");
   
-  if ( version_compare($version['version'], "6.11", "<") )
-  {
+  if ( version_compare($version['version'], "6.11", "<") ) {
     echo "**********************************************************************\n";
     echo "\n";
     echo "Screen for Unraid Requires Unraid version 6.11.0 or greater to run\n";
@@ -44,6 +43,7 @@
     exit(1);
   }
 ?>
+]]>
     </INLINE>
   </FILE>
 
@@ -96,7 +96,7 @@ echo ""
   <FILE Run="/bin/bash" Method="status">
     <INLINE>
 # Check for the latest version
-latest_version=$(curl -s &latestVersionURL;)
+latest_version=$(curl -s &latestVersionURL)
 
 if [ "$latest_version" = "&screenVer;" ]; then
   echo ""
