@@ -12,9 +12,9 @@
   <!ENTITY plgPATH "/boot/config/plugins/&name;">
   <!ENTITY plgNAME "&name;-&version;-&arch;">
   <!ENTITY emhttp "/usr/local/emhttp/plugins/&name;">
-  <!ENTITY url "https://github.com/&author;/&name;/releases/download/&screenVer;/screen-&screenVer;-&arch;.txz">
+  <!ENTITY url "https://github.com/trulow/Screen-for-Unraid/releases/download/4.9.0/screen-4.9.0-x86_64-1.txz">
   <!ENTITY iconURL "https://raw.githubusercontent.com/trulow/&name;/main/icon.png">
-  <!ENTITY latestVersionURL "https://raw.githubusercontent.com/&author;/&name;/main/latest_version.txt">
+  <!ENTITY latestVersionURL "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/latest_version.txt">
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
