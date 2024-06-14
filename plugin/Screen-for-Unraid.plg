@@ -3,20 +3,20 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "Screen-for-Unraid">
 <!ENTITY author    "trulow">
-<!ENTITY version   "2024.06.11">
-<!ENTITY md5       "2e96eac13086e39eccb77b9f651e4cca"> <!-- Update this with the new MD5 checksum -->
+<!ENTITY version   "2024.06.11"> <!-- Plugin Version -->
 <!ENTITY launch    "Settings/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/trulow/&name;/main/plugin/&name;.plg">
-<!ENTITY plgPATH   "/boot/config/plugins/&name;">
-<!ENTITY plgNAME   "&name;-&version;-x86_64-1">
-<!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
-<!ENTITY screenURL "https://github.com/trulow/Screen-for-Unraid/releases/download/4.9.0/screen-4.9.0-x86_64-1.txz">
 <!ENTITY iconURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
+<!ENTITY minUnraidVersion "6.3.3"> <!-- Minimum Unraid Version -->
+<!ENTITY baseURL   "https://github.com/trulow/Screen-for-Unraid/releases/download/"> <!-- Base URL for Screen Package -->
+<!ENTITY screenPackageName "screen"> <!-- Base Name for Screen Package -->
+<!ENTITY md5       "2e96eac13086e39eccb77b9f651e4cca"> <!-- Update this with the new MD5 checksum -->
+<!ENTITY plgPATH   "/boot/config/plugins/&name;">
+<!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
+<!ENTITY supportURL "https://forums.unraid.net/topic/168065-screen-for-terminal-unraid/">
 ]>
 
-<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
-
-  <ICON>&iconURL;</ICON>
+<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="&minUnraidVersion;" icon="&iconURL;" support="&supportURL;">
 
   <CHANGES>
 ##&name;
@@ -28,24 +28,42 @@
   <FILE Run="/usr/bin/php">
     <INLINE>
       <![CDATA[
-<?
+<?php
+  // Check Unraid version
   $version = parse_ini_file("/etc/unraid-version");
-
-  if ( version_compare($version['version'], "6.11", "<") )
-  {
+  if (version_compare($version['version'], "&minUnraidVersion;", "<")) {
     echo "**********************************************************************\n";
     echo "\n";
-    echo "ScreenInstaller Requires Unraid version 6.11.0 or greater to run\n";
+    echo "ScreenInstaller Requires Unraid version &minUnraidVersion; or greater to run\n";
     echo "\n";
     echo "**********************************************************************\n";
     exit(1);
   }
 
-  $current_version = trim(shell_exec("plugin version &plgPATH;/&name;.plg"));
-  if ($current_version && version_compare($current_version, "&version;", ">=")) {
-    echo "The installed version (&current_version;) is up to date.\n";
+  // Check current plugin version
+  $pluginVersion = trim(shell_exec("plugin version /boot/config/plugins/&name;/&name;.plg"));
+  if ($pluginVersion && version_compare($pluginVersion, "&version;", ">=")) {
+    echo "The installed version ($pluginVersion) is up to date.\n";
     exit(0);
   }
+
+  // Define screen package version
+  $screenVersion = "4.9.0"; // Update this version as required
+  $screenPackage = "&screenPackageName;-".$screenVersion."-x86_64-1.txz";
+  $screenURL = "&baseURL;".$screenVersion."/".$screenPackage;
+
+  // Download screen package
+  file_put_contents("/boot/config/plugins/&name;/".$screenPackage, fopen($screenURL, 'r'));
+
+  // Verify MD5 checksum
+  $expectedMD5 = trim(shell_exec("curl -s ".$screenURL.".md5"));
+  $actualMD5 = md5_file("/boot/config/plugins/&name;/".$screenPackage);
+  if ($expectedMD5 !== $actualMD5) {
+    echo "MD5 checksum verification failed for ".$screenPackage."\n";
+    exit(1);
+  }
+
+  echo "Screen package ".$screenPackage." downloaded and verified.\n";
 ?>
 ]]>
     </INLINE>
@@ -54,7 +72,7 @@
   <FILE Run="/bin/bash">
     <INLINE>
 # Remove old 'source' files
-rm -f $(ls /boot/config/plugins/&name;/&name;*.txz 2>/dev/null | grep -v '&version;')
+rm -f $(ls /boot/config/plugins/&name;/&name;*.txz 2>/dev/null | grep -v $screenPackage)
     </INLINE>
   </FILE>
 
@@ -72,8 +90,8 @@ echo ""
     </INLINE>
   </FILE>
 
-  <FILE Name="/boot/config/plugins/&name;/screen-4.9.0-x86_64-1.txz" Run="upgradepkg --install-new --reinstall">
-    <URL>&screenURL;</URL>
+  <FILE Name="/boot/config/plugins/&name;/$screenPackage" Run="upgradepkg --install-new --reinstall">
+    <URL>&baseURL;$screenVersion/$screenPackage</URL>
     <MD5>&md5;</MD5>
   </FILE>
 
