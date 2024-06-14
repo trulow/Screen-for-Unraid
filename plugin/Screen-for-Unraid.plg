@@ -10,7 +10,7 @@
 <!ENTITY plgPATH   "/boot/config/plugins/&name;">
 <!ENTITY plgNAME   "&name;-&version;-x86_64-1">
 <!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
-<!ENTITY screenURL "https://slackware.uk/slackware/slackware64-15.0/slackware64/ap/screen-4.9.0-x86_64-1.txz">
+<!ENTITY screenURL "https://github.com/trulow/Screen-for-Unraid/releases/download/4.9.0/screen-4.9.0-x86_64-1.txz">
 <!ENTITY iconURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
 ]>
 
