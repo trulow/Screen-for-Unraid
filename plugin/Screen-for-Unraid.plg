@@ -10,9 +10,13 @@
 <!ENTITY plgPATH   "/boot/config/plugins/&name;">
 <!ENTITY plgNAME   "&name;-&version;-x86_64-1">
 <!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
+<!ENTITY screenURL "https://slackware.uk/slackware/slackware64-15.0/slackware64/ap/screen-4.9.0-x86_64-1.txz">
+<!ENTITY iconURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
+
+  <ICON>&iconURL;</ICON>
 
   <CHANGES>
 ##&name;
@@ -26,7 +30,7 @@
       <![CDATA[
 <?
   $version = parse_ini_file("/etc/unraid-version");
-  
+
   if ( version_compare($version['version'], "6.11", "<") )
   {
     echo "**********************************************************************\n";
@@ -35,6 +39,12 @@
     echo "\n";
     echo "**********************************************************************\n";
     exit(1);
+  }
+
+  $current_version = trim(shell_exec("plugin version &plgPATH;/&name;.plg"));
+  if ($current_version && version_compare($current_version, "&version;", ">=")) {
+    echo "The installed version (&current_version;) is up to date.\n";
+    exit(0);
   }
 ?>
 ]]>
@@ -63,7 +73,7 @@ echo ""
   </FILE>
 
   <FILE Name="/boot/config/plugins/&name;/screen-4.9.0-x86_64-1.txz" Run="upgradepkg --install-new --reinstall">
-    <URL>https://slackware.uk/slackware/slackware64-15.0/slackware64/ap/screen-4.9.0-x86_64-1.txz</URL>
+    <URL>&screenURL;</URL>
     <MD5>&md5;</MD5>
   </FILE>
 
