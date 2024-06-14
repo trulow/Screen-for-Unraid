@@ -9,7 +9,6 @@
 <!ENTITY pluginURL "https://raw.githubusercontent.com/trulow/&name;/main/plugin/&name;.plg">
 <!ENTITY plgPATH   "/boot/config/plugins/&name;">
 <!ENTITY plgNAME   "&name;-&version;-x86_64-1">
-<!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
 <!ENTITY screenURL "https://github.com/trulow/Screen-for-Unraid/releases/download/4.9.0/screen-4.9.0-x86_64-1.txz">
 <!ENTITY iconURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
 ]>
@@ -81,7 +80,6 @@ echo ""
   <FILE Run="/bin/bash" Method="remove">
     <INLINE>
 removepkg &plgPATH;/screen-4.9.0-x86_64-1.txz
-rm -rf &emhttp;
 rm -f &plgPATH;/screen-4.9.0-x86_64-1.txz
 rm -rf &plgPATH;
 
