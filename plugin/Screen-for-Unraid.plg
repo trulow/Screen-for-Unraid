@@ -11,6 +11,7 @@
 <!ENTITY iconURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
 <!ENTITY plgPATH   "/boot/config/plugins/&name;">
 <!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
+<!ENTITY md5       "2e96eac13086e39eccb77b9f651e4cca"> <!-- Update this with the new MD5 checksum -->
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&currentVersion;" launch="Settings/&name;" pluginURL="&pluginURL;" min="&minUnraidVersion;">
@@ -30,8 +31,7 @@
 <?
   // Check Unraid version
   $version = parse_ini_file("/etc/unraid-version");
-  if ( version_compare($version['version'], "&minUnraidVersion;", "<") )
-  {
+  if (version_compare($version['version'], "&minUnraidVersion;", "<")) {
     echo "**********************************************************************\n";
     echo "\n";
     echo "ScreenInstaller Requires Unraid version &minUnraidVersion; or greater to run\n";
@@ -48,7 +48,7 @@
   }
 
   // Define screen package version
-  $screenVersion = "4.9.1"; // Update this version as required
+  $screenVersion = "4.9.0"; // Update this version as required
   $screenPackage = "&screenPackageName;-".$screenVersion."-x86_64-1.txz";
   $screenURL = "&baseURL;".$screenVersion."/".$screenPackage;
 
