@@ -3,15 +3,20 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "Screen-for-Unraid">
 <!ENTITY author    "trulow">
-<!ENTITY version   "2024.06.11"> <!-- Plugin Version -->
+<!ENTITY version   "2024.06.11">
+<!ENTITY md5       "2e96eac13086e39eccb77b9f651e4cca"> <!-- Update this with the new MD5 checksum -->
 <!ENTITY launch    "Settings/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/trulow/&name;/main/plugin/&name;.plg">
+<!ENTITY plgPATH   "/boot/config/plugins/&name;">
+<!ENTITY plgNAME   "&name;-&version;-x86_64-1">
+<!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
+<!ENTITY screenURL "https://slackware.uk/slackware/slackware64-15.0/slackware64/ap/screen-4.9.0-x86_64-1.txz">
 <!ENTITY iconURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
-<!ENTITY minUnraidVersion "6.3.3"> <!-- Minimum Unraid Version -->
-<!ENTITY supportURL "https://forums.unraid.net/topic/168065-screen-for-terminal-unraid/">
 ]>
 
-<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="&minUnraidVersion;" icon="&iconURL;" support="&supportURL;">
+<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
+
+  <ICON>&iconURL;</ICON>
 
   <CHANGES>
 ##&name;
@@ -20,49 +25,36 @@
   </CHANGES>
 
   <!-- The 'pre-install' script. -->
-  <FILE Run="/bin/bash">
+  <FILE Run="/usr/bin/php">
     <INLINE>
       <![CDATA[
-#!/bin/bash
+<?
+  $version = parse_ini_file("/etc/unraid-version");
 
-# Check Unraid version
-version=$(awk -F'=' '/version/ {print $2}' /etc/unraid-version)
-if [[ "$(echo "${version}" | tr -d '.')" -lt "$(echo "${minUnraidVersion}" | tr -d '.')" ]]; then
-  echo "**********************************************************************"
-  echo ""
-  echo "ScreenInstaller Requires Unraid version ${minUnraidVersion} or greater to run"
-  echo ""
-  echo "**********************************************************************"
-  exit 1
-fi
+  if ( version_compare($version['version'], "6.11", "<") )
+  {
+    echo "**********************************************************************\n";
+    echo "\n";
+    echo "ScreenInstaller Requires Unraid version 6.11.0 or greater to run\n";
+    echo "\n";
+    echo "**********************************************************************\n";
+    exit(1);
+  }
 
-# Check current plugin version
-pluginVersion=$(plugin version /boot/config/plugins/&name;/&name;.plg)
-if [[ "${pluginVersion}" && "$(echo "${pluginVersion}" | tr -d '.')" -ge "$(echo "${version}" | tr -d '.')" ]]; then
-  echo "The installed version (${pluginVersion}) is up to date."
-  exit 0
-fi
+  $current_version = trim(shell_exec("plugin version &plgPATH;/&name;.plg"));
+  if ($current_version && version_compare($current_version, "&version;", ">=")) {
+    echo "The installed version (&current_version;) is up to date.\n";
+    exit(0);
+  }
+?>
+]]>
+    </INLINE>
+  </FILE>
 
-# Download and install screen package
-baseURL="https://github.com/trulow/Screen-for-Unraid/releases/download/"
-screenVersion="4.9.0"
-screenPackage="screen-${screenVersion}-x86_64-1.txz"
-screenURL="${baseURL}${screenVersion}/${screenPackage}"
-
-# Download the package
-curl -L -o "/boot/config/plugins/&name;/${screenPackage}" "${screenURL}"
-
-# Verify MD5 checksum
-expectedMD5=$(curl -s "${screenURL}.md5")
-actualMD5=$(md5sum "/boot/config/plugins/&name;/${screenPackage}" | awk '{print $1}')
-if [[ "${expectedMD5}" != "${actualMD5}" ]]; then
-  echo "MD5 checksum verification failed for ${screenPackage}"
-  exit 1
-fi
-
-echo "Screen package ${screenPackage} downloaded and verified."
-exit 0
-      ]]>
+  <FILE Run="/bin/bash">
+    <INLINE>
+# Remove old 'source' files
+rm -f $(ls /boot/config/plugins/&name;/&name;*.txz 2>/dev/null | grep -v '&version;')
     </INLINE>
   </FILE>
 
@@ -80,16 +72,21 @@ echo ""
     </INLINE>
   </FILE>
 
+  <FILE Name="/boot/config/plugins/&name;/screen-4.9.0-x86_64-1.txz" Run="upgradepkg --install-new --reinstall">
+    <URL>&screenURL;</URL>
+    <MD5>&md5;</MD5>
+  </FILE>
+
   <!-- The 'remove' script. -->
   <FILE Run="/bin/bash" Method="remove">
     <INLINE>
-removepkg "/boot/config/plugins/&name;/screen-4.9.0-x86_64-1.txz"
-rm -rf "/usr/local/emhttp/plugins/&name;"
-rm -f "/boot/config/plugins/&name;/screen-4.9.0-x86_64-1.txz"
+removepkg &plgPATH;/screen-4.9.0-x86_64-1.txz
+rm -rf &emhttp;
+rm -f &plgPATH;/screen-4.9.0-x86_64-1.txz
 
-removepkg "/boot/extra/*_screeninstaller.txz" 1>/dev/null
-rm -f "/boot/extra/*_screeninstaller.txz" 1>/dev/null
-rm -f "/boot/config/plugins/ScreenInstaller" 1>/dev/null
+removepkg /boot/extra/*_screeninstaller.txz 1>/dev/null
+rm -f /boot/extra/*_screeninstaller.txz 1>/dev/null
+rm -f /boot/config/plugins/ScreenInstaller 1>/dev/null
 
 echo ""
 echo "-----------------------------------------------------------"
