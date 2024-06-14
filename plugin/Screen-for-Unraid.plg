@@ -83,6 +83,7 @@ echo ""
 removepkg &plgPATH;/screen-4.9.0-x86_64-1.txz
 rm -rf &emhttp;
 rm -f &plgPATH;/screen-4.9.0-x86_64-1.txz
+rm -rf &plgPATH;
 
 echo ""
 echo "-----------------------------------------------------------"
