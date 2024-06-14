@@ -1,7 +1,7 @@
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
-<!ENTITY name "Screen-For-Unraid">
+<!ENTITY name "Screen-for-Unraid">
 <!ENTITY author "trulow">
 <!ENTITY version "2024.06.11">
 <!ENTITY screenVer "4.9.0">
@@ -13,7 +13,7 @@
 <!ENTITY plgNAME "&name;-&version;-&arch;">
 <!ENTITY emhttp "/usr/local/emhttp/plugins/&name;">
 <!ENTITY url "https://github.com/&author;/&name;/releases/download/&screenVer;/screen-&screenVer;-&arch;.txz">
-<!ENTITY iconURL "https://raw.githubusercontent.com/&author;/&name;/main/icon.png">
+<!ENTITY iconURL "https://raw.githubusercontent.com/trulow/&name;/main/icon.png">
 <!ENTITY latestVersionURL "https://raw.githubusercontent.com/&author;/&name;/main/latest_version.txt">
 ]>
 
@@ -29,27 +29,114 @@
 
   <!-- The 'pre-install' script. -->
   <FILE Run="/usr/bin/php">
-	<INLINE>
+    <INLINE>
 <![CDATA[
 <?php
   $version = parse_ini_file("/etc/unraid-version");
   
   if ( version_compare($version['version'], "6.11", "<") ) {
-	echo "**********************************************************************\n";
-	echo "\n";
-	echo "Screen for Unraid Requires Unraid version 6.11.0 or greater to run\n";
-	echo "\n";
-	echo "**********************************************************************\n";
-	exit(1);
+    echo "**********************************************************************\n";
+    echo "\n";
+    echo "Screen for Unraid Requires Unraid version 6.11.0 or greater to run\n";
+    echo "\n";
+    echo "**********************************************************************\n";
+    exit(1);
   }
 ?>
 ]]>
-	</INLINE>
+    </INLINE>
   </FILE>
 
   <!-- Remove old 'source' files -->
   <FILE Run="/bin/bash">
-	<INLINE>
+    <INLINE>
 plugin_dir="/boot/config/plugins/&name;"
 current_version="screen-&screenVer;-&arch;.txz"
-old_versions=$(ls $plugin_dir/screen-*.txz 2>/dev/null | grep 
+old_versions=$(ls $plugin_dir/screen-*.txz 2>/dev/null | grep -v "$current_version")
+
+if [ -n "$old_versions" ]; then
+  rm -f $old_versions
+  echo ""
+  echo "-----------------------------------------------------------"
+  echo " &name; old versions removed:"
+  for version in $old_versions; do
+    echo " - $(basename $version)"
+  done
+  echo "-----------------------------------------------------------"
+  echo ""
+fi
+    </INLINE>
+  </FILE>
+
+  <!-- The 'install' script. -->
+  <FILE Run="/bin/bash" Method="install">
+    <INLINE>
+# Remove old version
+removepkg /boot/config/plugins/&name;/screen-*.txz
+
+# Install new version
+echo ""
+echo "-----------------------------------------------------------"
+echo " &name; has been installed."
+echo ""
+echo " Copyright 2024, &author;"
+echo " Version: &version;"
+echo "-----------------------------------------------------------"
+echo ""
+    </INLINE>
+  </FILE>
+
+  <!-- Upgrade to the new version -->
+  <FILE Name="/boot/config/plugins/&name;/screen-&screenVer;-&arch;.txz" Run="upgradepkg --install-new --reinstall">
+    <URL>&url;</URL>
+    <MD5>&md5;</MD5>
+  </FILE>
+
+  <!-- The 'status' script. -->
+  <FILE Run="/bin/bash" Method="status">
+    <INLINE>
+# Check for the latest version
+latest_version=$(curl -s &latestVersionURL)
+
+if [ "$latest_version" = "&screenVer;" ]; then
+  echo ""
+  echo "-----------------------------------------------------------"
+  echo " &name; is up-to-date."
+  echo "-----------------------------------------------------------"
+  echo ""
+else
+  echo ""
+  echo "-----------------------------------------------------------"
+  echo " &name; is not up-to-date. Latest version is $latest_version."
+  echo "-----------------------------------------------------------"
+  echo ""
+fi
+    </INLINE>
+  </FILE>
+
+  <!-- The 'remove' script. -->
+  <FILE Run="/bin/bash" Method="remove">
+    <INLINE>
+# Remove installed package
+removepkg &plgPATH;/screen-&screenVer;-&arch;.txz
+
+# Remove associated files
+rm -rf &emhttp;
+rm -f &plgPATH;/screen-&screenVer;-&arch;.txz
+
+# Clean up any extras
+removepkg /boot/extra/*_screenforunraid.txz 1>/dev/null
+rm -f /boot/extra/*_screenforunraid.txz 1>/dev/null
+rm -f /boot/config/plugins/ScreenForUnraid 1>/dev/null
+
+echo ""
+echo "-----------------------------------------------------------"
+echo " &name; has been removed."
+echo " Copyright 2024, &author;"
+echo " Version: &version;"
+echo "-----------------------------------------------------------"
+echo ""
+    </INLINE>
+  </FILE>
+
+</PLUGIN>
