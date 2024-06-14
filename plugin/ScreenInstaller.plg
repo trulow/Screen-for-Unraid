@@ -1,20 +1,20 @@
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
-<!ENTITY name "Screen-for-Unraid">
-<!ENTITY author "trulow">
-<!ENTITY version "2024.06.11">
-<!ENTITY screenVer "4.9.0">
-<!ENTITY arch "x86_64-1">
-<!ENTITY md5 "2e96eac13086e39eccb77b9f651e4cca">
-<!ENTITY launch "Settings/&name;">
-<!ENTITY pluginURL "https://raw.githubusercontent.com/&author;/&name;/main/plugin/&name;.plg">
-<!ENTITY plgPATH "/boot/config/plugins/&name;">
-<!ENTITY plgNAME "&name;-&version;-&arch;">
-<!ENTITY emhttp "/usr/local/emhttp/plugins/&name;">
-<!ENTITY url "https://github.com/&author;/&name;/releases/download/&screenVer;/screen-&screenVer;-&arch;.txz">
-<!ENTITY iconURL "https://raw.githubusercontent.com/trulow/&name;/main/icon.png">
-<!ENTITY latestVersionURL "https://raw.githubusercontent.com/&author;/&name;/main/latest_version.txt">
+  <!ENTITY name "Screen-for-Unraid">
+  <!ENTITY author "trulow">
+  <!ENTITY version "2024.06.11">
+  <!ENTITY screenVer "4.9.0">
+  <!ENTITY arch "x86_64-1">
+  <!ENTITY md5 "2e96eac13086e39eccb77b9f651e4cca">
+  <!ENTITY launch "Settings/&name;">
+  <!ENTITY pluginURL "https://raw.githubusercontent.com/&author;/&name;/main/plugin/&name;.plg">
+  <!ENTITY plgPATH "/boot/config/plugins/&name;">
+  <!ENTITY plgNAME "&name;-&version;-&arch;">
+  <!ENTITY emhttp "/usr/local/emhttp/plugins/&name;">
+  <!ENTITY url "https://github.com/&author;/&name;/releases/download/&screenVer;/screen-&screenVer;-&arch;.txz">
+  <!ENTITY iconURL "https://raw.githubusercontent.com/trulow/&name;/main/icon.png">
+  <!ENTITY latestVersionURL "https://raw.githubusercontent.com/&author;/&name;/main/latest_version.txt">
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
