@@ -84,10 +84,6 @@ removepkg &plgPATH;/screen-4.9.0-x86_64-1.txz
 rm -rf &emhttp;
 rm -f &plgPATH;/screen-4.9.0-x86_64-1.txz
 
-removepkg /boot/extra/*_screeninstaller.txz 1>/dev/null
-rm -f /boot/extra/*_screeninstaller.txz 1>/dev/null
-rm -f /boot/config/plugins/ScreenInstaller 1>/dev/null
-
 echo ""
 echo "-----------------------------------------------------------"
 echo " &name; has been removed."
