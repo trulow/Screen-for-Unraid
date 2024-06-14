@@ -3,20 +3,20 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "Screen-for-Unraid">
 <!ENTITY author    "trulow">
-<!ENTITY currentVersion "2024.06.11"> <!-- Current Plugin Version -->
-<!ENTITY minUnraidVersion "6.11"> <!-- Minimum Unraid Version -->
-<!ENTITY baseURL "https://github.com/trulow/Screen-for-Unraid/releases/download/"> <!-- Base URL for Screen Package -->
-<!ENTITY screenPackageName "screen"> <!-- Base Name for Screen Package -->
+<!ENTITY version   "2024.06.11"> <!-- Plugin Version -->
+<!ENTITY launch    "Settings/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/trulow/&name;/main/plugin/&name;.plg">
 <!ENTITY iconURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
+<!ENTITY minUnraidVersion "6.3.3"> <!-- Minimum Unraid Version -->
+<!ENTITY baseURL   "https://github.com/trulow/Screen-for-Unraid/releases/download/"> <!-- Base URL for Screen Package -->
+<!ENTITY screenPackageName "screen"> <!-- Base Name for Screen Package -->
+<!ENTITY md5       "2e96eac13086e39eccb77b9f651e4cca"> <!-- Update this with the new MD5 checksum -->
 <!ENTITY plgPATH   "/boot/config/plugins/&name;">
 <!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
-<!ENTITY md5       "2e96eac13086e39eccb77b9f651e4cca"> <!-- Update this with the new MD5 checksum -->
+<!ENTITY supportURL "https://forums.unraid.net/topic/168065-screen-for-terminal-unraid/">
 ]>
 
-<PLUGIN name="&name;" author="&author;" version="&currentVersion;" launch="Settings/&name;" pluginURL="&pluginURL;" min="&minUnraidVersion;">
-
-  <ICON>&iconURL;</ICON>
+<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="&minUnraidVersion;" icon="&iconURL;" support="&supportURL;">
 
   <CHANGES>
 ##&name;
@@ -28,7 +28,7 @@
   <FILE Run="/usr/bin/php">
     <INLINE>
       <![CDATA[
-<?
+<?php
   // Check Unraid version
   $version = parse_ini_file("/etc/unraid-version");
   if (version_compare($version['version'], "&minUnraidVersion;", "<")) {
@@ -42,7 +42,7 @@
 
   // Check current plugin version
   $pluginVersion = trim(shell_exec("plugin version /boot/config/plugins/&name;/&name;.plg"));
-  if ($pluginVersion && version_compare($pluginVersion, "&currentVersion;", ">=")) {
+  if ($pluginVersion && version_compare($pluginVersion, "&version;", ">=")) {
     echo "The installed version ($pluginVersion) is up to date.\n";
     exit(0);
   }
@@ -84,7 +84,7 @@ echo "-----------------------------------------------------------"
 echo " &name; has been installed."
 echo ""
 echo " Copyright 2024, &author;"
-echo " Version: &currentVersion;"
+echo " Version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
     </INLINE>
@@ -110,7 +110,7 @@ echo ""
 echo "-----------------------------------------------------------"
 echo " &name; has been removed."
 echo " Copyright 2024, &author;"
-echo " Version: &currentVersion;"
+echo " Version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
     </INLINE>
