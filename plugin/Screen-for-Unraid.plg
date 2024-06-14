@@ -17,7 +17,7 @@
   <CHANGES>
 ##&name;
 ###2024.06.11
-- Initial release to install screen-4.9.0-x86_64-2
+- Initial release to install screen-4.9.0-x86_64-1
   </CHANGES>
 
   <!-- The 'pre-install' script. -->
@@ -62,17 +62,17 @@ echo ""
     </INLINE>
   </FILE>
 
-  <FILE Name="/boot/config/plugins/&name;/screen-4.9.0-x86_64-2.txz" Run="upgradepkg --install-new --reinstall">
-    <URL>https://slackware.uk/slackware/slackware64-15.0/slackware64/ap/screen-4.9.0-x86_64-2.txz</URL>
+  <FILE Name="/boot/config/plugins/&name;/screen-4.9.0-x86_64-1.txz" Run="upgradepkg --install-new --reinstall">
+    <URL>https://slackware.uk/slackware/slackware64-15.0/slackware64/ap/screen-4.9.0-x86_64-1.txz</URL>
     <MD5>&md5;</MD5>
   </FILE>
 
   <!-- The 'remove' script. -->
   <FILE Run="/bin/bash" Method="remove">
     <INLINE>
-removepkg &plgPATH;/screen-4.9.0-x86_64-2.txz
+removepkg &plgPATH;/screen-4.9.0-x86_64-1.txz
 rm -rf &emhttp;
-rm -f &plgPATH;/screen-4.9.0-x86_64-2.txz
+rm -f &plgPATH;/screen-4.9.0-x86_64-1.txz
 
 removepkg /boot/extra/*_screeninstaller.txz 1>/dev/null
 rm -f /boot/extra/*_screeninstaller.txz 1>/dev/null
