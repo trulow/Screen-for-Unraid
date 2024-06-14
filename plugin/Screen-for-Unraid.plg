@@ -89,7 +89,7 @@ rm -f &plgPATH;/screen-4.9.0-x86_64-1.txz
 rm -rf &plgPATH;
 
 # Remove the icon
-rm -f &iconPATH;
+rm -rf &iconPATH;
 
 echo ""
 echo "-----------------------------------------------------------"
