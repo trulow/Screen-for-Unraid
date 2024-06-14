@@ -1,29 +1,91 @@
-<?xml version="1.0" standalone="yes"?>
+<?xml version='1.0' standalone='yes'?>
 
-<PLUGIN name="Screen-for-Unraid" author="trulow" version="2024.06.11" pluginURL="https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/plugin/Screen-for-Unraid.plg" min="6.11">
-  <ICON>https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png</ICON>
+<!DOCTYPE PLUGIN [
+<!ENTITY name      "Screen-for-Unraid">
+<!ENTITY author    "trulow">
+<!ENTITY version   "2024.06.11">
+<!ENTITY md5       "2e96eac13086e39eccb77b9f651e4cca"> <!-- Update this with the new MD5 checksum -->
+<!ENTITY launch    "Settings/&name;">
+<!ENTITY pluginURL "https://raw.githubusercontent.com/trulow/&name;/main/plugin/&name;.plg">
+<!ENTITY plgPATH   "/boot/config/plugins/&name;">
+<!ENTITY plgNAME   "&name;-&version;-x86_64-1">
+<!ENTITY emhttp    "/usr/local/emhttp/plugins/&name;">
+]>
+
+<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
 
   <CHANGES>
-    ## Screen-for-Unraid
-    ### 2024.06.11
-    - Initial release to install screen-4.9.0
+##&name;
+###2024.06.11
+- Initial release to install screen-4.9.0-x86_64-2
   </CHANGES>
 
-  <FILE Name="/boot/config/plugins/Screen-for-Unraid/screen-4.9.0-x86_64-1.txz" Run="upgradepkg --install-new --reinstall">
-    <URL>https://github.com/trulow/Screen-for-Unraid/releases/download/4.9.0/screen-4.9.0-x86_64-1.txz</URL>
-    <MD5>2e96eac13086e39eccb77b9f651e4cca</MD5>
+  <!-- The 'pre-install' script. -->
+  <FILE Run="/usr/bin/php">
+    <INLINE>
+      <![CDATA[
+<?
+  $version = parse_ini_file("/etc/unraid-version");
+  
+  if ( version_compare($version['version'], "6.11", "<") )
+  {
+    echo "**********************************************************************\n";
+    echo "\n";
+    echo "ScreenInstaller Requires Unraid version 6.11.0 or greater to run\n";
+    echo "\n";
+    echo "**********************************************************************\n";
+    exit(1);
+  }
+?>
+]]>
+    </INLINE>
   </FILE>
 
+  <FILE Run="/bin/bash">
+    <INLINE>
+# Remove old 'source' files
+rm -f $(ls /boot/config/plugins/&name;/&name;*.txz 2>/dev/null | grep -v '&version;')
+    </INLINE>
+  </FILE>
+
+  <!-- The 'install' script. -->
   <FILE Run="/bin/bash" Method="install">
-    <INLINE><![CDATA[
-echo "Screen-for-Unraid has been installed."
-    ]]></INLINE>
+    <INLINE>
+echo ""
+echo "-----------------------------------------------------------"
+echo " &name; has been installed."
+echo ""
+echo " Copyright 2024, &author;"
+echo " Version: &version;"
+echo "-----------------------------------------------------------"
+echo ""
+    </INLINE>
   </FILE>
 
+  <FILE Name="/boot/config/plugins/&name;/screen-4.9.0-x86_64-2.txz" Run="upgradepkg --install-new --reinstall">
+    <URL>https://slackware.uk/slackware/slackware64-15.0/slackware64/ap/screen-4.9.0-x86_64-2.txz</URL>
+    <MD5>&md5;</MD5>
+  </FILE>
+
+  <!-- The 'remove' script. -->
   <FILE Run="/bin/bash" Method="remove">
-    <INLINE><![CDATA[
-echo "Screen-for-Unraid has been removed."
-    ]]></INLINE>
+    <INLINE>
+removepkg &plgPATH;/screen-4.9.0-x86_64-2.txz
+rm -rf &emhttp;
+rm -f &plgPATH;/screen-4.9.0-x86_64-2.txz
+
+removepkg /boot/extra/*_screeninstaller.txz 1>/dev/null
+rm -f /boot/extra/*_screeninstaller.txz 1>/dev/null
+rm -f /boot/config/plugins/ScreenInstaller 1>/dev/null
+
+echo ""
+echo "-----------------------------------------------------------"
+echo " &name; has been removed."
+echo " Copyright 2024, &author;"
+echo " Version: &version;"
+echo "-----------------------------------------------------------"
+echo ""
+    </INLINE>
   </FILE>
 
 </PLUGIN>
