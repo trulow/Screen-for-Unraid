@@ -7,7 +7,6 @@
   <!ENTITY screenVer "4.9.0">
   <!ENTITY arch "x86_64-1">
   <!ENTITY md5 "2e96eac13086e39eccb77b9f651e4cca">
-  <!ENTITY launch "Settings/&name;">
   <!ENTITY pluginURL "https://raw.githubusercontent.com/&author;/&name;/main/plugin/&name;.plg">
   <!ENTITY plgPATH "/boot/config/plugins/&name;">
   <!ENTITY plgNAME "&name;-&version;-&arch;">
@@ -17,22 +16,18 @@
   <!ENTITY latestVersionURL "https://raw.githubusercontent.com/&author;/&name;/main/latest_version.txt">
 ]>
 
-<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
-  
+<PLUGIN name="&name;" author="&author;" version="&version;" pluginURL="&pluginURL;" min="6.11">
   <ICON>&iconURL;</ICON>
-  
   <CHANGES>
     ##&name;
     ###2024.06.11
     - Initial release to install screen-&screenVer;
   </CHANGES>
-  
+
   <FILE Run="/usr/bin/php">
-    <INLINE>
-<![CDATA[
+    <INLINE><![CDATA[
 <?php
   $version = parse_ini_file("/etc/unraid-version");
-  
   if (version_compare($version['version'], "6.11", "<")) {
     echo "**********************************************************************\n";
     echo "\n";
@@ -42,16 +37,14 @@
     exit(1);
   }
 ?>
-]]>
-    </INLINE>
+    ]]></INLINE>
   </FILE>
-  
+
   <FILE Run="/bin/bash">
-    <INLINE>
+    <INLINE><![CDATA[
 plugin_dir="/boot/config/plugins/&name;"
 current_version="screen-&screenVer;-&arch;.txz"
 old_versions=$(ls $plugin_dir/screen-*.txz 2>/dev/null | grep -v "$current_version")
-
 if [ -n "$old_versions" ]; then
   rm -f $old_versions
   echo ""
@@ -63,13 +56,12 @@ if [ -n "$old_versions" ]; then
   echo "-----------------------------------------------------------"
   echo ""
 fi
-    </INLINE>
+    ]]></INLINE>
   </FILE>
-  
-  <FILE Run="/bin/bash" Method="install">
-    <INLINE>
-removepkg /boot/config/plugins/&name;/screen-*.txz
 
+  <FILE Run="/bin/bash" Method="install">
+    <INLINE><![CDATA[
+removepkg /boot/config/plugins/&name;/screen-*.txz
 echo ""
 echo "-----------------------------------------------------------"
 echo " &name; has been installed."
@@ -78,18 +70,17 @@ echo " Copyright 2024, &author;"
 echo " Version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
-    </INLINE>
+    ]]></INLINE>
   </FILE>
-  
+
   <FILE Name="/boot/config/plugins/&name;/screen-&screenVer;-&arch;.txz" Run="upgradepkg --install-new --reinstall">
     <URL>&url;</URL>
     <MD5>&md5;</MD5>
   </FILE>
-  
-  <FILE Run="/bin/bash" Method="status">
-    <INLINE>
-latest_version=$(curl -s &latestVersionURL)
 
+  <FILE Run="/bin/bash" Method="status">
+    <INLINE><![CDATA[
+latest_version=$(curl -s &latestVersionURL)
 if [ "$latest_version" = "&screenVer;" ]; then
   echo ""
   echo "-----------------------------------------------------------"
@@ -103,20 +94,17 @@ else
   echo "-----------------------------------------------------------"
   echo ""
 fi
-    </INLINE>
+    ]]></INLINE>
   </FILE>
-  
-  <FILE Run="/bin/bash" Method="remove">
-    <INLINE>
-removepkg &plgPATH;/screen-&screenVer;-&arch;.txz
 
+  <FILE Run="/bin/bash" Method="remove">
+    <INLINE><![CDATA[
+removepkg &plgPATH;/screen-&screenVer;-&arch;.txz
 rm -rf &emhttp;
 rm -f &plgPATH;/screen-&screenVer;-&arch;.txz
-
 removepkg /boot/extra/*_screenforunraid.txz 1>/dev/null
 rm -f /boot/extra/*_screenforunraid.txz 1>/dev/null
 rm -f /boot/config/plugins/ScreenForUnraid 1>/dev/null
-
 echo ""
 echo "-----------------------------------------------------------"
 echo " &name; has been removed."
@@ -124,6 +112,6 @@ echo " Copyright 2024, &author;"
 echo " Version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
-    </INLINE>
+    ]]></INLINE>
   </FILE>
 </PLUGIN>
