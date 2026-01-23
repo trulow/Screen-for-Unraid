@@ -22,7 +22,7 @@
   Update notes
   Change only screenPkgVer when a new Screen package is released
   Optional bump version and CHANGES if you want Unraid to show a new plugin release
-  No manual checksum updates needed, the installer pulls CHECKSUMS.md5 and verifies automatically with mirror fallback
+  No manual checksum updates needed, installer pulls CHECKSUMS.md5 and verifies automatically with mirror fallback
   -->
 
   <ICON>&iconPATH;</ICON>
@@ -49,14 +49,13 @@ Install &screenPkgFile; with checksum validation and mirror fallback
 
   <FILE Run="/bin/bash">
     <INLINE><![CDATA[
-set -e
-
 mkdir -p "&plgPATH;"
 mkdir -p "/usr/local/emhttp/plugins/&name;"
 
 find "&plgPATH;" -maxdepth 1 -type f -name "screen-*.txz" ! -name "&screenPkgFile;" -delete 2>/dev/null || true
 
-wget -qO "&iconPATH;" "&iconURL;"
+# Icon download is best effort only, never fail install if it cannot be fetched
+wget -q --timeout=20 --tries=2 -O "&iconPATH;" "&iconURL;" || true
 ]]></INLINE>
   </FILE>
 
