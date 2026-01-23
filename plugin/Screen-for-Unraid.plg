@@ -18,19 +18,12 @@
 
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
 
-  <!--
-  Update notes
-  Change only screenPkgVer when a new Screen package is released
-  Optional bump version and CHANGES if you want Unraid to show a new plugin release
-  No manual checksum updates needed, installer pulls CHECKSUMS.md5 and verifies automatically with mirror fallback
-  -->
-
   <ICON>&iconPATH;</ICON>
 
   <CHANGES>
 ## &name;
 ### 2026.01.23
-Install &screenPkgFile; with checksum validation and mirror fallback
+Install &screenPkgFile; with automatic checksum validation and mirror fallback
   </CHANGES>
 
   <FILE Run="/usr/bin/php">
@@ -43,19 +36,29 @@ Install &screenPkgFile; with checksum validation and mirror fallback
     echo "**********************************************************************\n";
     exit(1);
   }
+
+  $currentVersion = trim(shell_exec("plugin version &plgPATH;/&name;.plg 2>/dev/null"));
+  if ($currentVersion && version_compare($currentVersion, "&version;", ">=")) {
+    echo "Installed plugin version ($currentVersion) is up to date.\n";
+    exit(0);
+  }
 ?>
 ]]></INLINE>
   </FILE>
 
   <FILE Run="/bin/bash">
     <INLINE><![CDATA[
+# Local prep only
 mkdir -p "&plgPATH;"
 mkdir -p "/usr/local/emhttp/plugins/&name;"
 
+# Remove older downloaded screen packages for this plugin
 find "&plgPATH;" -maxdepth 1 -type f -name "screen-*.txz" ! -name "&screenPkgFile;" -delete 2>/dev/null || true
 
-# Icon download is best effort only, never fail install if it cannot be fetched
+# Icon is best effort only
 wget -q --timeout=20 --tries=2 -O "&iconPATH;" "&iconURL;" || true
+
+exit 0
 ]]></INLINE>
   </FILE>
 
@@ -67,11 +70,8 @@ pkg_file="&screenPkgFile;"
 pkg_path="&plgPATH;/$pkg_file"
 sums_path="&plgPATH;/CHECKSUMS.md5"
 
-roots=(
-  "https://slackware.uk/slackware/slackware64-current"
-  "https://mirrors.slackware.com/slackware/slackware64-current"
-  "https://slackware.osuosl.org/slackware64-current"
-)
+# Use http for maximum compatibility with stock wget on Unraid
+mirrors="http://slackware.uk/slackware/slackware64-current http://mirrors.slackware.com/slackware/slackware64-current http://slackware.osuosl.org/slackware64-current"
 
 download_first_working() {
   out="$1"
@@ -85,30 +85,24 @@ download_first_working() {
   return 1
 }
 
-pkg_urls=()
-sums_urls=()
-
-for r in "${roots[@]}"; do
-  pkg_urls+=( "$r/slackware64/ap/$pkg_file" )
-  sums_urls+=( "$r/slackware64/CHECKSUMS.md5" )
-done
-
 echo ""
-echo "==========================================================="
+echo "-----------------------------------------------------------"
 echo " &name; installing"
 echo " Plugin version: &version;"
 echo " Screen package: $pkg_file"
-echo "==========================================================="
+echo "-----------------------------------------------------------"
 echo ""
 
-echo "Downloading package"
-if ! download_first_working "$pkg_path" "${pkg_urls[@]}"; then
-  echo "ERROR: Could not download $pkg_file from any mirror"
-  exit 1
-fi
+pkg_urls=""
+sums_urls=""
+
+for root in $mirrors; do
+  pkg_urls="$pkg_urls $root/slackware64/ap/$pkg_file"
+  sums_urls="$sums_urls $root/slackware64/CHECKSUMS.md5"
+done
 
 echo "Downloading checksums"
-if ! download_first_working "$sums_path" "${sums_urls[@]}"; then
+if ! download_first_working "$sums_path" $sums_urls; then
   echo "ERROR: Could not download CHECKSUMS.md5 from any mirror"
   exit 1
 fi
@@ -116,6 +110,12 @@ fi
 expected="$(grep -E " ./slackware64/ap/$pkg_file\$" "$sums_path" | awk '{print $1}' | head -n 1 || true)"
 if [ -z "$expected" ]; then
   echo "ERROR: Could not find checksum entry for ./slackware64/ap/$pkg_file"
+  exit 1
+fi
+
+echo "Downloading package"
+if ! download_first_working "$pkg_path" $pkg_urls; then
+  echo "ERROR: Could not download $pkg_file from any mirror"
   exit 1
 fi
 
@@ -131,9 +131,11 @@ echo "Checksum verified"
 upgradepkg --install-new --reinstall "$pkg_path"
 
 echo ""
-echo "==========================================================="
-echo " &name; installed"
-echo "==========================================================="
+echo "-----------------------------------------------------------"
+echo " &name; has been installed."
+echo " Copyright 2024, &author;"
+echo " Plugin version: &version;"
+echo "-----------------------------------------------------------"
 echo ""
 ]]></INLINE>
   </FILE>
@@ -142,19 +144,23 @@ echo ""
     <INLINE><![CDATA[
 set -e
 
+# Remove installed Slackware package
 removepkg screen 2>/dev/null || true
 
+# Remove cached downloads and plugin folder on flash
 rm -f "&plgPATH;/screen-*.txz" 2>/dev/null || true
 rm -f "&plgPATH;/CHECKSUMS.md5" 2>/dev/null || true
 rm -rf "&plgPATH;"
 
+# Remove icon folder
 rm -rf "/usr/local/emhttp/plugins/&name;"
 
 echo ""
-echo "==========================================================="
-echo " &name; removed"
+echo "-----------------------------------------------------------"
+echo " &name; has been removed."
+echo " Copyright 2024, &author;"
 echo " Plugin version: &version;"
-echo "==========================================================="
+echo "-----------------------------------------------------------"
 echo ""
 ]]></INLINE>
   </FILE>
