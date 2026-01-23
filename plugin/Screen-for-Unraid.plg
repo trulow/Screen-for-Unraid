@@ -1,9 +1,3 @@
-<!--
-Update notes:
-1) Change only screenPkgVer when a new Screen package is released
-2) Optional: bump plugin version (and CHANGES) if you want Unraid to show a new plugin release
-No manual MD5 updates needed, the installer verifies the download using Slackware CHECKSUMS.md5 with mirror fallback
--->
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
@@ -30,6 +24,13 @@ No manual MD5 updates needed, the installer verifies the download using Slackwar
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
+
+<!--
+Update notes:
+1) Change only screenPkgVer when a new Screen package is released
+2) Optional: bump plugin version (and CHANGES) if you want Unraid to show a new plugin release
+No manual MD5 updates needed, the installer verifies the download using Slackware CHECKSUMS.md5 with mirror fallback
+-->
 
   <ICON>&iconPATH;</ICON>
 
