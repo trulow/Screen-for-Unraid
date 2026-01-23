@@ -60,11 +60,11 @@ mkdir -p "/usr/local/emhttp/plugins/&name;"
 
 find "&plgPATH;" -maxdepth 1 -type f -name "screen-*.txz" ! -name "&screenPkgFile;" -delete 2>/dev/null || true
 
-wget -q --timeout=20 --tries=2 -O "&iconPATH;" "&iconURL;" || true
-
 exit 0
     </INLINE>
   </FILE>
+
+  <FILE Name="&iconPATH;" URL="&iconURL;" Mode="0644" />
 
   <FILE Run="/bin/bash" Method="install">
     <INLINE>
