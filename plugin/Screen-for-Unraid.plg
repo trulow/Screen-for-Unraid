@@ -21,7 +21,6 @@
   <ICON>&iconPATH;</ICON>
 
   <CHANGES>
-## &name;
 ### 2026.01.23
 - Install &screenPkgFile; with automatic checksum validation and mirror fallback
 
