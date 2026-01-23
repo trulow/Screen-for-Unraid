@@ -37,9 +37,12 @@ Install &screenPkgFile; with automatic checksum validation and mirror fallback
     exit(1);
   }
 
-  $currentVersion = trim(shell_exec("plugin version &plgPATH;/&name;.plg 2>/dev/null"));
-  if ($currentVersion && version_compare($currentVersion, "&version;", ">=")) {
-    echo "Installed plugin version ($currentVersion) is up to date.\n";
+  // Do not rely on entity expansion inside CDATA
+  $plgFile = "/boot/config/plugins/Screen-for-Unraid/Screen-for-Unraid.plg";
+  $installed = trim(shell_exec("plugin version " . escapeshellarg($plgFile) . " 2>/dev/null"));
+
+  if ($installed && version_compare($installed, "2026.01.23", ">=")) {
+    echo "Installed plugin version ($installed) is up to date.\n";
     exit(0);
   }
 ?>
@@ -47,30 +50,26 @@ Install &screenPkgFile; with automatic checksum validation and mirror fallback
   </FILE>
 
   <FILE Run="/bin/bash">
-    <INLINE><![CDATA[
-# Local prep only
+    <INLINE>
 mkdir -p "&plgPATH;"
 mkdir -p "/usr/local/emhttp/plugins/&name;"
 
-# Remove older downloaded screen packages for this plugin
 find "&plgPATH;" -maxdepth 1 -type f -name "screen-*.txz" ! -name "&screenPkgFile;" -delete 2>/dev/null || true
 
-# Icon is best effort only
 wget -q --timeout=20 --tries=2 -O "&iconPATH;" "&iconURL;" || true
 
 exit 0
-]]></INLINE>
+    </INLINE>
   </FILE>
 
   <FILE Run="/bin/bash" Method="install">
-    <INLINE><![CDATA[
+    <INLINE>
 set -e
 
 pkg_file="&screenPkgFile;"
 pkg_path="&plgPATH;/$pkg_file"
 sums_path="&plgPATH;/CHECKSUMS.md5"
 
-# Use http for maximum compatibility with stock wget on Unraid
 mirrors="http://slackware.uk/slackware/slackware64-current http://mirrors.slackware.com/slackware/slackware64-current http://slackware.osuosl.org/slackware64-current"
 
 download_first_working() {
@@ -85,6 +84,13 @@ download_first_working() {
   return 1
 }
 
+pkg_urls=""
+sums_urls=""
+for root in $mirrors; do
+  pkg_urls="$pkg_urls $root/slackware64/ap/$pkg_file"
+  sums_urls="$sums_urls $root/slackware64/CHECKSUMS.md5"
+done
+
 echo ""
 echo "-----------------------------------------------------------"
 echo " &name; installing"
@@ -92,14 +98,6 @@ echo " Plugin version: &version;"
 echo " Screen package: $pkg_file"
 echo "-----------------------------------------------------------"
 echo ""
-
-pkg_urls=""
-sums_urls=""
-
-for root in $mirrors; do
-  pkg_urls="$pkg_urls $root/slackware64/ap/$pkg_file"
-  sums_urls="$sums_urls $root/slackware64/CHECKSUMS.md5"
-done
 
 echo "Downloading checksums"
 if ! download_first_working "$sums_path" $sums_urls; then
@@ -137,22 +135,19 @@ echo " Copyright 2024, &author;"
 echo " Plugin version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
-]]></INLINE>
+    </INLINE>
   </FILE>
 
   <FILE Run="/bin/bash" Method="remove">
-    <INLINE><![CDATA[
+    <INLINE>
 set -e
 
-# Remove installed Slackware package
 removepkg screen 2>/dev/null || true
 
-# Remove cached downloads and plugin folder on flash
 rm -f "&plgPATH;/screen-*.txz" 2>/dev/null || true
 rm -f "&plgPATH;/CHECKSUMS.md5" 2>/dev/null || true
 rm -rf "&plgPATH;"
 
-# Remove icon folder
 rm -rf "/usr/local/emhttp/plugins/&name;"
 
 echo ""
@@ -162,7 +157,7 @@ echo " Copyright 2024, &author;"
 echo " Plugin version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
-]]></INLINE>
+    </INLINE>
   </FILE>
 
 </PLUGIN>
