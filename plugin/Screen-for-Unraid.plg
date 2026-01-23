@@ -1,17 +1,32 @@
+<!--
+Update notes:
+1) Change only screenPkgVer when a new Screen package is released
+2) Optional: bump plugin version (and CHANGES) if you want Unraid to show a new plugin release
+No manual MD5 updates needed, the installer verifies the download using Slackware CHECKSUMS.md5 with mirror fallback
+-->
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
-<!ENTITY name      "Screen-for-Unraid">
-<!ENTITY author    "trulow">
-<!ENTITY version   "2024.06.11">
-<!ENTITY md5       "2e96eac13086e39eccb77b9f651e4cca"> <!-- Update this with the new MD5 checksum -->
-<!ENTITY launch    "Settings/&name;">
-<!ENTITY pluginURL "https://raw.githubusercontent.com/trulow/&name;/main/plugin/&name;.plg">
-<!ENTITY plgPATH   "/boot/config/plugins/&name;">
-<!ENTITY plgNAME   "&name;-&version;-x86_64-1">
-<!ENTITY screenURL "https://github.com/trulow/Screen-for-Unraid/releases/download/4.9.0/screen-4.9.0-x86_64-1.txz">
-<!ENTITY iconURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
-<!ENTITY iconPATH  "/usr/local/emhttp/plugins/&name;/icon.png">
+<!ENTITY name        "Screen-for-Unraid">
+<!ENTITY author      "trulow">
+<!ENTITY version     "2026.01.23">
+<!ENTITY launch      "Settings/&name;">
+<!ENTITY pluginURL   "https://raw.githubusercontent.com/trulow/&name;/main/plugin/&name;.plg">
+<!ENTITY plgPATH     "/boot/config/plugins/&name;">
+<!ENTITY iconURL     "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png">
+<!ENTITY iconPATH    "/usr/local/emhttp/plugins/&name;/icon.png">
+
+<!-- Only change this on updates -->
+<!ENTITY screenPkgVer  "5.0.1">
+
+<!ENTITY screenArch    "x86_64">
+<!ENTITY screenBuild   "1">
+<!ENTITY screenPkgFile "screen-&screenPkgVer;-&screenArch;-&screenBuild;.txz">
+
+<!-- Slackware current base and checksums -->
+<!ENTITY slackRoot     "https://slackware.uk/slackware/slackware64-current">
+<!ENTITY screenURL     "&slackRoot;/slackware64/ap/&screenPkgFile;">
+<!ENTITY sumsURL       "&slackRoot;/slackware64/CHECKSUMS.md5">
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
@@ -19,86 +34,109 @@
   <ICON>&iconPATH;</ICON>
 
   <CHANGES>
+## &name;
+### 2026.01.23
+Install &screenPkgFile; with automatic checksum validation from Slackware CHECKSUMS.md5
+
 ##&name;
 ###2024.06.11
 - Initial release to install screen-4.9.0-x86_64-1
   </CHANGES>
 
-  <!-- The 'pre-install' script. -->
   <FILE Run="/usr/bin/php">
-    <INLINE>
-      <![CDATA[
+    <INLINE><![CDATA[
 <?
-  $version = parse_ini_file("/etc/unraid-version");
-
-  if ( version_compare($version['version'], "6.11", "<") )
-  {
-    echo "**********************************************************************\n";
-    echo "\n";
-    echo "ScreenInstaller Requires Unraid version 6.11.0 or greater to run\n";
-    echo "\n";
+  $info = parse_ini_file("/etc/unraid-version");
+  if (version_compare($info["version"], "6.11.0", "<")) {
+    echo "**********************************************************************\n\n";
+    echo "This plugin requires Unraid 6.11.0 or newer\n\n";
     echo "**********************************************************************\n";
     exit(1);
   }
-
-  $current_version = trim(shell_exec("plugin version &plgPATH;/&name;.plg"));
-  if ($current_version && version_compare($current_version, "&version;", ">=")) {
-    echo "The installed version (&current_version;) is up to date.\n";
-    exit(0);
-  }
 ?>
-]]>
-    </INLINE>
+]]></INLINE>
   </FILE>
 
   <FILE Run="/bin/bash">
-    <INLINE>
-# Remove old 'source' files
-rm -f $(ls /boot/config/plugins/&name;/&name;*.txz 2>/dev/null | grep -v '&version;')
+    <INLINE><![CDATA[
+set -e
 
-# Download and install the icon
-mkdir -p /usr/local/emhttp/plugins/&name;
-wget -O &iconPATH; &iconURL;
-    </INLINE>
+mkdir -p "&plgPATH;"
+mkdir -p "/usr/local/emhttp/plugins/&name;"
+
+find "&plgPATH;" -maxdepth 1 -type f -name "screen-*.txz" ! -name "&screenPkgFile;" -delete 2>/dev/null || true
+
+wget -qO "&iconPATH;" "&iconURL;"
+]]></INLINE>
   </FILE>
 
-  <!-- The 'install' script. -->
   <FILE Run="/bin/bash" Method="install">
-    <INLINE>
+    <INLINE><![CDATA[
+set -e
+
+pkg_path="&plgPATH;/&screenPkgFile;"
+sums_path="&plgPATH;/CHECKSUMS.md5"
+
 echo ""
-echo "-----------------------------------------------------------"
-echo " &name; has been installed."
+echo "==========================================================="
+echo " &name; installing"
+echo " Plugin version: &version;"
+echo " Screen package: &screenPkgFile;"
+echo "==========================================================="
 echo ""
-echo " Copyright 2024, &author;"
-echo " Version: &version;"
-echo "-----------------------------------------------------------"
+
+echo "Downloading package"
+wget -qO "$pkg_path" "&screenURL;"
+
+echo "Downloading checksums"
+wget -qO "$sums_path" "&sumsURL;"
+
+expected="$(grep -E " ./slackware64/ap/&screenPkgFile;\$" "$sums_path" | awk '{print $1}' | head -n 1 || true)"
+if [ -z "$expected" ]; then
+  echo "ERROR: Could not find checksum entry for ./slackware64/ap/&screenPkgFile;"
+  echo "       Source: &sumsURL;"
+  exit 1
+fi
+
+actual="$(md5sum "$pkg_path" | awk '{print $1}')"
+
+if [ "$actual" != "$expected" ]; then
+  echo "ERROR: Checksum mismatch for &screenPkgFile;"
+  echo "Expected: $expected"
+  echo "Actual:   $actual"
+  exit 1
+fi
+
+echo "Checksum verified"
+upgradepkg --install-new --reinstall "$pkg_path"
+
 echo ""
-    </INLINE>
+echo "==========================================================="
+echo " &name; installed"
+echo "==========================================================="
+echo ""
+]]></INLINE>
   </FILE>
 
-  <FILE Name="/boot/config/plugins/&name;/screen-4.9.0-x86_64-1.txz" Run="upgradepkg --install-new --reinstall">
-    <URL>&screenURL;</URL>
-    <MD5>&md5;</MD5>
-  </FILE>
-
-  <!-- The 'remove' script. -->
   <FILE Run="/bin/bash" Method="remove">
-    <INLINE>
-removepkg &plgPATH;/screen-4.9.0-x86_64-1.txz
-rm -f &plgPATH;/screen-4.9.0-x86_64-1.txz
-rm -rf &plgPATH;
+    <INLINE><![CDATA[
+set -e
 
-# Remove the icon
-rm -rf /usr/local/emhttp/plugins/&name;
+removepkg screen 2>/dev/null || true
+
+rm -f "&plgPATH;/screen-*.txz" 2>/dev/null || true
+rm -f "&plgPATH;/CHECKSUMS.md5" 2>/dev/null || true
+rm -rf "&plgPATH;"
+
+rm -rf "/usr/local/emhttp/plugins/&name;"
 
 echo ""
-echo "-----------------------------------------------------------"
-echo " &name; has been removed."
-echo " Copyright 2024, &author;"
-echo " Version: &version;"
-echo "-----------------------------------------------------------"
+echo "==========================================================="
+echo " &name; removed"
+echo " Plugin version: &version;"
+echo "==========================================================="
 echo ""
-    </INLINE>
+]]></INLINE>
   </FILE>
 
 </PLUGIN>
