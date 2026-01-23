@@ -8,7 +8,7 @@
 <!ENTITY pluginURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/plugin/Screen-for-Unraid.plg">
 <!ENTITY plgPATH     "/boot/config/plugins/&name;">
 <!ENTITY iconURL     "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/plugin-icon.png">
-<!ENTITY iconPATH    "/usr/local/emhttp/plugins/Screen-for-Unraid/icon.png">
+<!ENTITY iconPATH    "/usr/local/emhttp/plugins/&name;/icon.png">
 
 <!ENTITY screenPkgVer  "5.0.1">
 <!ENTITY screenArch    "x86_64">
@@ -60,11 +60,14 @@ mkdir -p "/usr/local/emhttp/plugins/&name;"
 
 find "&plgPATH;" -maxdepth 1 -type f -name "screen-*.txz" ! -name "&screenPkgFile;" -delete 2>/dev/null || true
 
+# Download icon
+if wget -q --timeout=20 --tries=2 -O "&iconPATH;" "&iconURL;"; then
+  chmod 0644 "&iconPATH;" 2>/dev/null || true
+fi
+
 exit 0
     </INLINE>
   </FILE>
-
-  <FILE Name="&iconPATH;" URL="&iconURL;" Mode="0644" />
 
   <FILE Run="/bin/bash" Method="install">
     <INLINE>
