@@ -11,3 +11,11 @@ Enter the following URL
 # Source
 
     https://slackware.pkgs.org/current/slackware-x86_64/
+
+# CHANGE LOG:
+
+    ### 2026.01.23
+        - Install &screenPkgFile; with automatic checksum validation and mirror fallback
+
+    ### 2024.06.11
+        - Initial release to install screen-4.9.0-x86_64-1
