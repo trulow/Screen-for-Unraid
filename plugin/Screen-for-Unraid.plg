@@ -37,13 +37,15 @@ Install &screenPkgFile; with automatic checksum validation and mirror fallback
     exit(1);
   }
 
-  // Do not rely on entity expansion inside CDATA
+  // Best effort check, do not block install if this fails
   $plgFile = "/boot/config/plugins/Screen-for-Unraid/Screen-for-Unraid.plg";
   $installed = trim(shell_exec("plugin version " . escapeshellarg($plgFile) . " 2>/dev/null"));
 
-  if ($installed && version_compare($installed, "2026.01.23", ">=")) {
-    echo "Installed plugin version ($installed) is up to date.\n";
-    exit(0);
+  if ($installed && strpos($installed, "XML file doesn't exist") === false) {
+    if (version_compare($installed, "2026.01.23", ">=")) {
+      echo "Installed plugin version ($installed) is up to date.\n";
+      exit(0);
+    }
   }
 ?>
 ]]></INLINE>
@@ -105,9 +107,9 @@ if ! download_first_working "$sums_path" $sums_urls; then
   exit 1
 fi
 
-expected="$(grep -E " ./slackware64/ap/$pkg_file\$" "$sums_path" | awk '{print $1}' | head -n 1 || true)"
+expected="$(grep -E " (\./)?(slackware64/)?ap/$pkg_file\$" "$sums_path" | awk '{print $1}' | head -n 1 || true)"
 if [ -z "$expected" ]; then
-  echo "ERROR: Could not find checksum entry for ./slackware64/ap/$pkg_file"
+  echo "ERROR: Could not find checksum entry for ap/$pkg_file"
   exit 1
 fi
 
