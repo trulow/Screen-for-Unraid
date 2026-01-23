@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name        "Screen-for-Unraid">
 <!ENTITY author      "trulow">
-<!ENTITY version     "2026.01.23a">
+<!ENTITY version     "2026.01.23">
 <!ENTITY launch      "Settings/&name;">
 <!ENTITY pluginURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/plugin/Screen-for-Unraid.plg">
 <!ENTITY plgPATH     "/boot/config/plugins/&name;">
@@ -22,8 +22,8 @@
 
   <CHANGES>
 ## &name;
-### 2026.01.23a
-Fix checksum lookup for Slackware CHECKSUMS.md5 and keep mirror fallback
+### 2026.01.23
+Install &screenPkgFile; with automatic checksum validation and mirror fallback
   </CHANGES>
 
   <FILE Run="/usr/bin/php">
@@ -37,12 +37,12 @@ Fix checksum lookup for Slackware CHECKSUMS.md5 and keep mirror fallback
     exit(1);
   }
 
-  // Only treat a clean version string as valid output
+  // Best effort check, do not block install if this fails
   $plgFile = "/boot/config/plugins/Screen-for-Unraid/Screen-for-Unraid.plg";
   $installed = trim(shell_exec("plugin version " . escapeshellarg($plgFile) . " 2>/dev/null"));
 
-  if (preg_match('/^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[a-z]?$/', $installed)) {
-    if (version_compare($installed, "2026.01.23a", ">=")) {
+  if ($installed && strpos($installed, "XML file doesn't exist") === false) {
+    if (version_compare($installed, "2026.01.23", ">=")) {
       echo "Installed plugin version ($installed) is up to date.\n";
       exit(0);
     }
@@ -107,23 +107,11 @@ if ! download_first_working "$sums_path" $sums_urls; then
   exit 1
 fi
 
-# CHECKSUMS.md5 under slackware64 usually lists paths like ./ap/<file>
-# Some mirrors or formats may include slackware64/ap/<file>
-line="$(grep -E "[[:space:]](\./)?(slackware64/)?ap/$pkg_file\$" "$sums_path" | head -n 1 || true)"
-
-# Fallback match, in case the path is listed without the ap prefix for some reason
-if [ -z "$line" ]; then
-  line="$(grep -E "[[:space:]](\./)?(slackware64/)?[^[:space:]]*/$pkg_file\$" "$sums_path" | head -n 1 || true)"
-fi
-
-if [ -z "$line" ]; then
-  echo "ERROR: Could not find checksum entry for $pkg_file"
-  echo "First matching lines for screen in CHECKSUMS.md5:"
-  grep -n "screen-" "$sums_path" | head -n 20 || true
+expected="$(grep -E " (\./)?(slackware64/)?ap/$pkg_file\$" "$sums_path" | awk '{print $1}' | head -n 1 || true)"
+if [ -z "$expected" ]; then
+  echo "ERROR: Could not find checksum entry for ap/$pkg_file"
   exit 1
 fi
-
-expected="$(echo "$line" | awk '{print $1}')"
 
 echo "Downloading package"
 if ! download_first_working "$pkg_path" $pkg_urls; then
