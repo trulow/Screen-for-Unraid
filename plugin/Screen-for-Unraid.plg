@@ -7,7 +7,7 @@
 <!ENTITY launch      "Settings/&name;">
 <!ENTITY pluginURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/plugin/Screen-for-Unraid.plg">
 <!ENTITY plgPATH     "/boot/config/plugins/&name;">
-<!ENTITY iconURL     "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/refs/heads/main/plugin-icon.png">
+<!ENTITY iconURL     "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/plugin-icon.png">
 <!ENTITY iconPATH    "/usr/local/emhttp/plugins/&name;/icon.png">
 
 <!ENTITY screenPkgVer  "5.0.1">
