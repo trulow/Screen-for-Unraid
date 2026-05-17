@@ -14,6 +14,9 @@ Enter the following URL
 
 # CHANGE LOG:
 
+    ### 2026.05.17
+        - Install the latest available 5.0.1 build with automatic checksum validation and mirror fallback
+
     ### 2026.01.23
         - Install 5.0.1 with automatic checksum validation and mirror fallback
 

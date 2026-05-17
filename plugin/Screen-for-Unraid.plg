@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name        "Screen-for-Unraid">
 <!ENTITY author      "trulow">
-<!ENTITY version     "2026.01.23">
+<!ENTITY version     "2026.05.17">
 <!ENTITY launch      "Settings/&name;">
 <!ENTITY pluginURL   "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/plugin/Screen-for-Unraid.plg">
 <!ENTITY plgPATH     "/boot/config/plugins/&name;">
@@ -12,8 +12,7 @@
 
 <!ENTITY screenPkgVer  "5.0.1">
 <!ENTITY screenArch    "x86_64">
-<!ENTITY screenBuild   "1">
-<!ENTITY screenPkgFile "screen-&screenPkgVer;-&screenArch;-&screenBuild;.txz">
+<!ENTITY screenPkgPattern "screen-&screenPkgVer;-&screenArch;-*.txz">
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" min="6.11">
@@ -21,8 +20,11 @@
   <ICON>&iconPATH;</ICON>
 
   <CHANGES>
+### 2026.05.17
+- Install the latest available &screenPkgPattern; build with automatic checksum validation and mirror fallback
+
 ### 2026.01.23
-- Install &screenPkgFile; with automatic checksum validation and mirror fallback
+- Install screen-5.0.1-x86_64-1.txz with automatic checksum validation and mirror fallback
 
 ### 2024.06.11
 - Initial release to install screen-4.9.0-x86_64-1
@@ -44,7 +46,7 @@
   $installed = trim(shell_exec("plugin version " . escapeshellarg($plgFile) . " 2>/dev/null"));
 
   if ($installed && strpos($installed, "XML file doesn't exist") === false) {
-    if (version_compare($installed, "2026.01.23", ">=")) {
+    if (version_compare($installed, "2026.05.17", ">=")) {
       echo "Installed plugin version ($installed) is up to date.\n";
       exit(0);
     }
@@ -57,8 +59,6 @@
     <INLINE>
 mkdir -p "&plgPATH;"
 mkdir -p "/usr/local/emhttp/plugins/&name;"
-
-find "&plgPATH;" -maxdepth 1 -type f -name "screen-*.txz" ! -name "&screenPkgFile;" -delete 2>/dev/null || true
 
 # Download plugin icon
 if wget -q --timeout=20 --tries=2 -O "&iconPATH;" "&iconURL;"; then
@@ -73,8 +73,6 @@ exit 0
     <INLINE>
 set -e
 
-pkg_file="&screenPkgFile;"
-pkg_path="&plgPATH;/$pkg_file"
 sums_path="&plgPATH;/CHECKSUMS.md5"
 
 mirrors="http://slackware.uk/slackware/slackware64-current http://mirrors.slackware.com/slackware/slackware64-current http://slackware.osuosl.org/slackware64-current"
@@ -91,10 +89,8 @@ download_first_working() {
   return 1
 }
 
-pkg_urls=""
 sums_urls=""
 for root in $mirrors; do
-  pkg_urls="$pkg_urls $root/slackware64/ap/$pkg_file"
   sums_urls="$sums_urls $root/slackware64/CHECKSUMS.md5"
 done
 
@@ -102,7 +98,7 @@ echo ""
 echo "-----------------------------------------------------------"
 echo " &name; installing"
 echo " Plugin version: &version;"
-echo " Screen package: $pkg_file"
+echo " Screen package: &screenPkgPattern;"
 echo "-----------------------------------------------------------"
 echo ""
 
@@ -112,11 +108,53 @@ if ! download_first_working "$sums_path" $sums_urls; then
   exit 1
 fi
 
-expected="$(grep -E " (\./)?(slackware64/)?ap/$pkg_file\$" "$sums_path" | awk '{print $1}' | head -n 1 || true)"
-if [ -z "$expected" ]; then
-  echo "ERROR: Could not find checksum entry for ap/$pkg_file"
+match_line="$(
+  awk -v ver="&screenPkgVer;" -v arch="&screenArch;" '
+    $2 ~ "(^|/)slackware64/ap/screen-" ver "-" arch "-[0-9]+[.]txz$" || $2 ~ "(^|/)ap/screen-" ver "-" arch "-[0-9]+[.]txz$" {
+      path=$2
+      sub(/^\.\//, "", path)
+      file=path
+      sub(/^.*\//, "", file)
+      build=file
+      sub("^screen-" ver "-" arch "-", "", build)
+      sub("[.]txz$", "", build)
+      print build, $1, path, file
+    }
+  ' "$sums_path" | sort -n | tail -n 1
+)"
+
+if [ -z "$match_line" ]; then
+  echo "ERROR: Could not find checksum entry for ap/&screenPkgPattern;"
   exit 1
 fi
+
+set -- $match_line
+pkg_build="$1"
+expected="$2"
+pkg_rel_path="$3"
+pkg_file="$4"
+pkg_path="&plgPATH;/$pkg_file"
+
+case "$pkg_rel_path" in
+  slackware64/*)
+    pkg_mirror_path="$pkg_rel_path"
+    ;;
+  ap/*)
+    pkg_mirror_path="slackware64/$pkg_rel_path"
+    ;;
+  *)
+    echo "ERROR: Unexpected checksum path for $pkg_file: $pkg_rel_path"
+    exit 1
+    ;;
+esac
+
+pkg_urls=""
+for root in $mirrors; do
+  pkg_urls="$pkg_urls $root/$pkg_mirror_path"
+done
+
+echo "Selected screen package: $pkg_file (build $pkg_build)"
+find "&plgPATH;" -maxdepth 1 -type f -name "screen-*.txz" ! -name "$pkg_file" -delete 2>/dev/null || true
 
 echo "Downloading package"
 if ! download_first_working "$pkg_path" $pkg_urls; then
