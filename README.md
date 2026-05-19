@@ -14,6 +14,18 @@ Enter the following URL
 
 # CHANGE LOG:
 
+    ### 2026.05.17 (Provided by @rasooll)
+        - Removed the fixed screenBuild package value.
+        - Added dynamic lookup for the latest available screen-5.0.1-x86_64-*.txz build from CHECKSUMS.md5.
+        - Kept checksum validation before installation.
+        - Kept mirror fallback support.
+        - Updated the plugin version to 2026.05.17.
+        - Updated changelog entries in the plugin and README.
+        Validation
+        - Verified the plugin XML with xmllint.
+        - Verified the embedded install script with bash -n.
+        - Tested the build selection logic to confirm it chooses the highest numeric build.
+
     ### 2026.05.17
         - Install the latest available 5.0.1 build with automatic checksum validation and mirror fallback
 
