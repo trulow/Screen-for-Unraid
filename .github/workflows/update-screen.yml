@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_latest.outputs.version }}
+      pkg: ${{ steps.get_latest.outputs.pkg }}
       current: ${{ steps.current.outputs.current }}
       update_needed: ${{ steps.compare.outputs.update_needed }}
     steps:
@@ -28,7 +29,7 @@ jobs:
             wget -q -O CHECKSUMS.md5 "$m/CHECKSUMS.md5" && break
           done
 
-          version="$(
+          pkg="$(
             awk -v arch="x86_64" '
               {
                 path=$2
@@ -37,21 +38,26 @@ jobs:
                     path ~ "^ap/screen-[0-9]+([.][0-9]+)+-" arch "-[0-9]+[.]txz$") {
                   file=path
                   sub(/^.*\//, "", file)
-                  ver=file
-                  sub("^screen-", "", ver)
-                  sub("-" arch "-[0-9]+[.]txz$", "", ver)
-                  print ver
+                  print file
                 }
               }
             ' CHECKSUMS.md5 | sort -V | tail -n 1
           )"
 
-          if [ -z "$version" ]; then
+          rm -f CHECKSUMS.md5
+
+          if [ -z "$pkg" ]; then
             echo "Could not determine latest version"
             exit 1
           fi
+
+          pkg="${pkg%.txz}"
+          version="${pkg#screen-}"
+          version="${version%-x86_64-*}"
+
           echo "version=$version" >> $GITHUB_OUTPUT
-          echo "Found latest version: $version"
+          echo "pkg=$pkg" >> $GITHUB_OUTPUT
+          echo "Found latest version: $version ($pkg.txz)"
 
       - name: Read current version
         id: current
@@ -74,14 +80,14 @@ jobs:
       - name: Update files
         if: steps.compare.outputs.update_needed == 'true'
         run: |
-          NEW_VER="${{ steps.get_latest.outputs.version }}"
+          PKG="${{ steps.get_latest.outputs.pkg }}"
           DATE=$(date +%Y.%m.%d)
 
           # Update latest_version.txt
-          echo "$NEW_VER" > latest_version.txt
+          echo "${{ steps.get_latest.outputs.version }}" > latest_version.txt
 
           # Update screenPkgVer in plg file
-          sed -i 's|<!ENTITY screenPkgVer  "[^"]*">|<!ENTITY screenPkgVer  "'"$NEW_VER"'">|' plugin/Screen-for-Unraid.plg
+          sed -i 's|<!ENTITY screenPkgVer  "[^"]*">|<!ENTITY screenPkgVer  "'"${{ steps.get_latest.outputs.version }}"'">|' plugin/Screen-for-Unraid.plg
 
           # Update plugin version
           CURRENT_PLG_VER=$(grep -oP '<!ENTITY version\s+"[^"]+">' plugin/Screen-for-Unraid.plg | grep -oP '"[^"]+' | tr -d '"')
@@ -89,23 +95,23 @@ jobs:
 
           # Add changelog entry after opening <CHANGES> tag in plg file
           line=$(grep -n '<CHANGES>' plugin/Screen-for-Unraid.plg | head -1 | cut -d: -f1)
-          sed -i "$((line+1))i\\\\n### $DATE\n- Install screen-${NEW_VER}-x86_64-*.txz with automatic checksum validation and mirror fallback\n" plugin/Screen-for-Unraid.plg
+          sed -i "$((line+1))i\\\\n### $DATE\n- Install ${PKG}.txz with automatic checksum validation and mirror fallback\n" plugin/Screen-for-Unraid.plg
 
           # Add changelog entry in README.md after "# CHANGE LOG:"
           line=$(grep -n '# CHANGE LOG:' README.md | head -1 | cut -d: -f1)
-          sed -i "$((line+1))i\\\\n    ### $DATE\n        - Install screen-${NEW_VER}-x86_64-*.txz with automatic checksum validation and mirror fallback\n" README.md
+          sed -i "$((line+1))i\\\\n    ### $DATE\n        - Install ${PKG}.txz with automatic checksum validation and mirror fallback\n" README.md
 
-          echo "Updated to version $NEW_VER (plugin version $DATE)"
+          echo "Updated to $PKG.txz (plugin version $DATE)"
 
       - name: Create Pull Request
         if: steps.compare.outputs.update_needed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Update Screen to ${{ steps.get_latest.outputs.version }}"
-          title: "Update Screen to ${{ steps.get_latest.outputs.version }}"
+          token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          commit-message: "Update to ${{ steps.get_latest.outputs.pkg }}.txz"
+          title: "Update to ${{ steps.get_latest.outputs.pkg }}.txz"
           body: |
-            Automated update of Screen to **${{ steps.get_latest.outputs.version }}**.
+            Automated update of Screen to **${{ steps.get_latest.outputs.pkg }}.txz**.
 
             Source: https://slackware.pkgs.org/current/slackware-x86_64/
 
