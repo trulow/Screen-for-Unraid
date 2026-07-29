@@ -14,6 +14,9 @@ Enter the following URL
 
 # CHANGE LOG:
 
+    ### 2026.07.29
+        - Install screen-5.0.2-x86_64-1.txz with automatic checksum validation and mirror fallback
+
     ### 2026.05.17 (Provided by @rasooll)
         - Removed the fixed screenBuild package value.
         - Added dynamic lookup for the latest available screen-5.0.1-x86_64-*.txz build from CHECKSUMS.md5.
