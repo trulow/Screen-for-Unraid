@@ -10,7 +10,7 @@
 <!ENTITY iconURL     "https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/plugin-icon.png">
 <!ENTITY iconPATH    "/usr/local/emhttp/plugins/&name;/&name;.png">
 
-<!ENTITY screenPkgVer  "5.0.1">
+<!ENTITY screenPkgVer  "5.0.2">
 <!ENTITY screenArch    "x86_64">
 <!ENTITY screenPkgPattern "screen-&screenPkgVer;-&screenArch;-*.txz">
 ]>
@@ -20,6 +20,9 @@
   <ICON>&iconPATH;</ICON>
 
   <CHANGES>
+### 2026.07.29
+- Install screen-5.0.2-x86_64-1.txz with automatic checksum validation and mirror fallback
+
 ### 2026.05.17
 - Install the latest available &screenPkgPattern; build with automatic checksum validation and mirror fallback
 
