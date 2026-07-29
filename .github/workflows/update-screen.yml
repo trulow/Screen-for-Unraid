@@ -99,7 +99,7 @@ jobs:
 
           # Add changelog entry in README.md after "# CHANGE LOG:"
           line=$(grep -n '# CHANGE LOG:' README.md | head -1 | cut -d: -f1)
-          sed -i "$((line+1))i\\\\n    ### $DATE\n        - Install ${PKG}.txz with automatic checksum validation and mirror fallback\n" README.md
+          sed -i "$((line+1))i\\\\n    ### $DATE\n        - Install ${PKG}.txz with automatic checksum validation and mirror fallback" README.md
 
           echo "Updated to $PKG.txz (plugin version $DATE)"
 
