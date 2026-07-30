@@ -1,0 +1,9 @@
+<CommunityApplications>
+    <Profile>
+        Plugin to install GNU Screen on Unraid, enabling persistent terminal sessions via the command line. For support,
+        visit the forum thread linked below.
+    </Profile>
+    <Icon>https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png</Icon>
+    <WebPage>https://github.com/trulow/Screen-for-Unraid</WebPage>
+    <Forum>https://forums.unraid.net/topic/168065-plugin-screen-for-terminal-unraid/</Forum>
+</CommunityApplications>

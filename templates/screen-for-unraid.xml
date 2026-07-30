@@ -1,0 +1,13 @@
+<Plugin>
+    <Name>Screen for Unraid</Name>
+    <Overview>Installs GNU Screen on Unraid, enabling persistent terminal sessions that survive SSH disconnections.
+        Manage multiple sessions, detach and reattach at will — essential for long-running tasks on your server.
+    </Overview>
+    <PluginURL>https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/plugin/Screen-for-Unraid.plg</PluginURL>
+    <PluginAuthor>trulow</PluginAuthor>
+    <Support>https://forums.unraid.net/topic/168065-plugin-screen-for-terminal-unraid/</Support>
+    <Project>https://github.com/trulow/Screen-for-Unraid</Project>
+    <Category>Tools:Utilities</Category>
+    <Icon>https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/icon.png</Icon>
+    <ReadMe>https://raw.githubusercontent.com/trulow/Screen-for-Unraid/main/README.md</ReadMe>
+</Plugin>
